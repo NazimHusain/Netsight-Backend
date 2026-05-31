@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Result</title>
+</head>
+
+<body>
+<h2>Results</h2>
+<p><b>Device Type:</b> {{ device }}</p>
+
+<table border="1" cellpadding="8">
+<tr>
+    <th>IP</th>
+    <th>Message</th>
+</tr>
+
+{% for row in result %}
+<tr>
+    <td>{{ row.0 }}</td>
+    <td>{{ row.1 }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<br>
+<a href="/download/">Download Result Excel</a>
+
+</body>
+</html>

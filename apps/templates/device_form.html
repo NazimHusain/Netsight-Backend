@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Device Form</title>
+<script>
+function addField(){
+    let div = document.getElementById("cmd_container");
+    let field = document.createElement("input");
+    field.type = "text";
+    field.name = "command";
+    field.placeholder = "Enter command";
+    div.appendChild(field);
+}
+</script>
+</head>
+
+<body>
+<h2>Device Input Form</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label>Select Device:</label><br>
+    {{ form.device }}<br><br>
+
+    <label>Upload Excel File:</label><br>
+    {{ form.excel_file }}<br><br>
+
+    <label>Commands:</label><br>
+    <div id="cmd_container">
+        <input type="text" name="command" placeholder="Enter command">
+    </div>
+
+    <button type="button" onclick="addField()">+</button>
+
+    <br><br>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>
