@@ -1,4 +1,5 @@
-from netmiko_jump_client import NetmikoJumpClient
+# from netmiko_jump_client import NetmikoJumpClient
+from netmiko import ConnectHandler
 import time
 import sys
 import logging
@@ -41,7 +42,7 @@ def getConnection(ip, device_type,username,password,jobID, timestamp, retries=0)
             
             
         }
-            connection = NetmikoJumpClient(net_device)
+            connection = ConnectHandler(net_device)
         except Exception as err:
             logging.info(f" error occured as {err}")                
             exception_type = type(err).__name__              

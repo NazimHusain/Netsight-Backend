@@ -97,31 +97,31 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': (
-            "(DESCRIPTION="
-            "(ADDRESS=(PROTOCOL=TCP)"
-            
-            f"(HOST={config("DB_HOST")})"  
-            f"(PORT={config("DB_PORT")}))"
-            "(CONNECT_DATA="
-            f"(SERVICE_NAME={config("DB_SERVICE")})))"
-        ),
-        'USER': config("DB_USER"),
-        'PASSWORD': config("DB_PASSWORD"), 
-        # 'CONN_MAX_AGE': 60, 
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.oracle',
+#         'NAME': (
+#             "(DESCRIPTION="
+#             "(ADDRESS=(PROTOCOL=TCP)"
+            
+#             f"(HOST={config("DB_HOST")})"  
+#             f"(PORT={config("DB_PORT")}))"
+#             "(CONNECT_DATA="
+#             f"(SERVICE_NAME={config("DB_SERVICE")})))"
+#         ),
+#         'USER': config("DB_USER"),
+#         'PASSWORD': config("DB_PASSWORD"), 
+#         # 'CONN_MAX_AGE': 60, 
+#     }
+# }
 
 
 
