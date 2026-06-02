@@ -1,7 +1,8 @@
 from django.shortcuts import render
 import logging
 from rest_framework.views import APIView
-# from ldap3 import Server, Connection, ALL, SUBTREE
+from ldap3 import Server, Connection, ALL, SUBTREE
+
 import json, requests
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -17,8 +18,8 @@ from django.utils.decorators import method_decorator
 
 User = get_user_model()
 
-
 # Create your views here.
+
 
 
 ## actual code to send email
