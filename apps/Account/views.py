@@ -15,6 +15,7 @@ from .models import *
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth import authenticate
 
 User = get_user_model()
 
@@ -187,85 +188,34 @@ class LoginView(APIView):
                 )
 
             password = request.data.get("password")
-
-            ldap_result = check_ldap_api(username, password)
-
-            # print(username,password)
-
-            # ldap_server = "10.5.112.202"
-
-            # bind_dn = f"{username}@india.airtel.itm"
-
-            # base_dn = "dc=india,dc=airtel,dc=itm"
-
-            # samaccountname = f"{username}"
-
-            # server = Server(ldap_server, get_info=ALL)
-
-            # conn = Connection(server, bind_dn, password, auto_bind=True)
-
-            # search_filter = f"(&(objectClass=user)(sAMAccountName={samaccountname}))"
-
-            # conn.search(
-            #     search_base=base_dn,
-            #     search_filter=search_filter,
-            #     search_scope=SUBTREE,
-            #     attributes=[
-            #         "sAMAccountName",
-            #         "manager1",
-            #         "supervisorMail",
-            #         "name",
-            #         "mail",
-            #         "memberOf",
-            #         "subFunction",
-            #         "subSubFunction",
-            #         "department",
-            #     ],
-            # )
-
-            # results = conn.entries
-
-            # entry_json = results[0].entry_to_json()
-
-            # entry_dict = json.loads(entry_json)
-
-            # department = entry_dict["attributes"]["department"][0]
-
-
-
-            # print(f"User is from {department}")
-
-            # if not department == 'Network-NOC':
-            #     return Response({"error": "User Outside NOC"}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-            # print(entry_dict)
-            if ldap_result:
+            user = authenticate(
+            username=username,
+            password=password
+            )
+            
+            if user is not None:
 
                 token, _ = Token.objects.get_or_create(user=user)
+
                 return Response(
                     {
+                        "success": True,
                         "token": str(token.key),
-                        "username": user.first_name,
-                    }
-                )
-            
-            return Response(
-                    {
-                        "Error": "User Not Found in Airtel Database"
+                        "message": "Login successful",
                     },
-                    status=status.HTTP_401_UNAUTHORIZED,
+                    status=status.HTTP_200_OK,
                 )
 
-        except Exception as e:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            logging.info(
-                f"There was an error processing your request.Exception line:{exc_tb.tb_lineno},Error:{e}"
-            )
             return Response(
-                    {
-                        "Error": f"There was an error processing your request.Exception line:{exc_tb.tb_lineno},Error:{e}"
-                    },
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
+                {
+                    "success": False,
+                    "message": "Invalid credentials"
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
+  
 
 
 #### logout
@@ -405,17 +355,8 @@ class RejectSignupRequestView(APIView):
 
 class DTCSignupRequestView(APIView):
     def post(self, request, *args, **kwargs):
-        # print(request.data)
-        # serializer = MopSignupRequestSerializer(data=request.data)
-        # if serializer.is_valid():
-        #     serializer.save()
-
-        # name =
-
-        # user_email =
-
-        # reporting_manager_email =
-
+        
+        
         olmid = request.data.get("username")
         print("################################", olmid)
         # user_type= request.data.get('user_type')
@@ -425,88 +366,44 @@ class DTCSignupRequestView(APIView):
         current_status = "Pending Approval"
         username1 = olmid
         vertical_head_email = "nazim.husain@airtel.com"
-        try:
-            if User.objects.filter(username=olmid).exists():
-                return Response(
-                    {
-                        "success": False,
-                        "message": "User with this email already exists.",
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        
+        if User.objects.filter(username=olmid).exists():
 
-            ldap_server = "10.5.112.202"
-
-            bind_dn = f"{username1}@india.airtel.itm"
-
-            base_dn = "dc=india,dc=airtel,dc=itm"
-
-            samaccountname = f"{olmid}"
-
-            server = Server(ldap_server, get_info=ALL)
-
-            conn = Connection(server, bind_dn, password, auto_bind=True)
-
-            search_filter = f"(&(objectClass=user)(sAMAccountName={samaccountname}))"
-
-            conn.search(
-                search_base=base_dn,
-                search_filter=search_filter,
-                search_scope=SUBTREE,
-                attributes=[
-                    "sAMAccountName",
-                    "manager1",
-                    "supervisorMail",
-                    "name",
-                    "mail",
-                    "memberOf",
-                    "subFunction",
-                    "subSubFunction",
-                ],
+            return Response(
+                {
+                    "success": False,
+                    "message": "Username already exists"
+                },
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-            results = conn.entries
-
-            print("===============Result line number 339===============", results)
-
-            entry_json = results[0].entry_to_json()
-
-            entry_dict = json.loads(entry_json)
-
-            user_email = entry_dict["attributes"]["mail"][0]
-            reporting_manager_email = entry_dict["attributes"]["supervisorMail"][0]
-            name = entry_dict["attributes"]["name"][0]
-
-            user = User.objects.create_user(
-                username=olmid, first_name=name, email=user_email, password=password
-            )
-            mis_request_instance = DCTSignupRequest(
-                user_email=user_email,
-                name=name,
-                reporting_manager_email=reporting_manager_email,
+        user = User.objects.create_user(
+            username=olmid,
+            email=vertical_head_email,
+            password=password
+        )
+        
+        mis_request_instance = DCTSignupRequest(
+                user_email=olmid,
+                name=username1,
+                reporting_manager_email="Nazim Husain",
                 olmid=olmid,
                 vertical_head_email=vertical_head_email,
                 team=team,
                 current_status=current_status,
             )
-            mis_request_instance.save()
-            token, _ = Token.objects.get_or_create(user=user)
+        mis_request_instance.save()
 
-            return Response(
-                {
-                    "success": True,
-                    "token": str(token.key),
-                    "message": "DRT signup successful.",
-                },
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            print(e)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            print(
-                f"There was an error processing your request.Exception line:{exc_tb.tb_lineno},Error:{e}"
-            )
-            return Response(
-                {"error": "There was some error."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        token, _ = Token.objects.get_or_create(user=user)
+
+        return Response(
+            {
+                "success": True,
+                "token": str(token.key),
+                "message": "Signup successful",
+            },
+            status=status.HTTP_201_CREATED,
+        )
+        
+
+      
