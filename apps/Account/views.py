@@ -172,47 +172,45 @@ class LoginView(APIView):
     # renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
     def post(self, request, *args, **kwargs):
+        
+        username = request.data.get("username")
 
         try:
-
-            username = request.data.get("username")
-
-            try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                return Response(
-                    {
-                        "Error": "You are not authorized to login.Please create and get your account approved before logging in."
-                    },
-                    status=status.HTTP_401_UNAUTHORIZED,
-                )
-
-            password = request.data.get("password")
-            user = authenticate(
-            username=username,
-            password=password
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "Error": "You are not authorized to login.Please create and get your account approved before logging in."
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
             )
-            
-            if user is not None:
 
-                token, _ = Token.objects.get_or_create(user=user)
+        password = request.data.get("password")
+        user = authenticate(
+        username=username,
+        password=password
+        )
+        
+        if user is not None:
 
-                return Response(
-                    {
-                        "success": True,
-                        "token": str(token.key),
-                        "message": "Login successful",
-                    },
-                    status=status.HTTP_200_OK,
-                )
+            token, _ = Token.objects.get_or_create(user=user)
 
             return Response(
                 {
-                    "success": False,
-                    "message": "Invalid credentials"
+                    "success": True,
+                    "token": str(token.key),
+                    "message": "Login successful",
                 },
-                status=status.HTTP_401_UNAUTHORIZED
+                status=status.HTTP_200_OK,
             )
+
+        return Response(
+            {
+                "success": False,
+                "message": "Invalid credentials"
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
   
